@@ -12,7 +12,7 @@ export default function IntroScreen({ onStart, onSkip }) {
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
       {/* Hero band under navbar – text left, avatar right */}
- <div className="max-w-[2900px] mx-auto  bg-[#073246] text-white px-8 md:px-14 py-12 md:py-20 shadow-lg">
+ <div className="max-w-[2900px] mx-auto  bg-[#073246] text-white  px-8 md:px-14 py-12 md:py-20 shadow-lg">
 <div className="grid gap-14 md:grid-cols-[1fr_1.5fr] items-center">
 
           {/* LEFT: Copy + actions */}
