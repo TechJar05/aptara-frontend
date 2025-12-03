@@ -13,7 +13,7 @@ export default function TopBar() {
             <img
               src="/aptaraLogo.png"
               alt="Aptara Logo"
-              className="h-8 w-auto select-none"
+              className="h-7 w-auto select-none"
             />
           </div>
 
@@ -43,7 +43,7 @@ export default function TopBar() {
               className={({ isActive }) =>
                 `inline-flex items-center py-3 border-b-2 transition ${
                   isActive
-                    ? "border-[#1d4457] text-[#1d4457]"
+                    ? "border-[#1d4457] text-[#802e2e]"
                     : "border-transparent text-[#1d4457]/70 hover:text-[#802e2e] "
                 }`
               }
@@ -56,7 +56,7 @@ export default function TopBar() {
               className={({ isActive }) =>
                 `inline-flex items-center py-3 border-b-2 transition ${
                   isActive
-                    ? "border-[#1d4457] text-[#1d4457]"
+                    ? "border-[#1d4457] text-[#802e2e]"
                     : "border-transparent text-[#1d4457]/70 hover:text-[#802e2e]"
                 }`
               }
@@ -69,7 +69,7 @@ export default function TopBar() {
               className={({ isActive }) =>
                 `inline-flex items-center py-3 border-b-2 transition ${
                   isActive
-                    ? "border-[#1d4457] text-[#1d4457]"
+                    ? "border-[#1d4457] text-[#802e2e]"
                     : "border-transparent text-[#1d4457]/70 hover:text-[#802e2e]"
                 }`
               }
