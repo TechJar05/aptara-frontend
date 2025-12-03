@@ -1,6 +1,7 @@
 // src/components/avatar/AvatarFrame.jsx
 import React from "react";
 
+// eslint-disable-next-line no-unused-vars
 export default function AvatarFrame({ label }) {
   return (
     <div className="relative w-full aspect-video rounded-2xl bg-[#1d4457]/10 border border-[#1d4457]/20 overflow-hidden shadow-xl">
