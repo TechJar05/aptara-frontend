@@ -1,5 +1,6 @@
 // src/screens/ShowreelScreen.jsx
 import React from "react";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import AvatarFrame from "../components/avatar/AvatarFrame";
 
@@ -20,10 +21,10 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
           >
-              <div className="relative rounded-3xl bg-gradient-to-br from-white/30 to-white/5 p-[2px] shadow-[0_22px_55px_rgba(0,0,0,0.55)]">
+              <div className="relative rounded-3xl bg-linear-to-br from-white/30 to-white/5 p-0.5 shadow-[0_22px_55px_rgba(0,0,0,0.55)]">
                            <div className="rounded-3xl bg-black/80 p-2 md:p-3">
                              {/* Make the avatar video taller / more dominant */}
-                             <div className="w-full aspect-[16/9] md:aspect-[16/9]">
+                             <div className="w-full aspect-video md:aspect-video">
                                <AvatarFrame label="Synthesia Avatar – Welcome Script" />
                              </div>
                            </div>
@@ -61,15 +62,15 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
             {/* Bullets */}
             <ul className="mt-2 space-y-2 text-xs md:text-sm text-white/85">
               <li className="flex gap-2">
-                <span className="mt-[6px] h-1.5 w-1.5 rounded-full bg-white" />
+                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-white" />
                 <span>Personalized avatar greeting triggered directly from the email click.</span>
               </li>
               <li className="flex gap-2">
-                <span className="mt-[6px] h-1.5 w-1.5 rounded-full bg-white" />
+                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-white" />
                 <span>Branching into different industries and buyer journeys.</span>
               </li>
               <li className="flex gap-2">
-                <span className="mt-[6px] h-1.5 w-1.5 rounded-full bg-white" />
+                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-white" />
                 <span>Clear hand-off points to deeper demos, form fills, or meetings.</span>
               </li>
             </ul>

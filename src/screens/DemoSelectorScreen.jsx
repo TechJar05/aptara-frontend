@@ -1,5 +1,6 @@
 // src/screens/DemoSelectorScreen.jsx
 import React from "react";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import AvatarFrame from "../components/avatar/AvatarFrame";
 
@@ -34,9 +35,9 @@ export default function DemoSelectorScreen({
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
           >
-            <div className="relative rounded-3xl bg-gradient-to-br from-white/40 to-white/10 p-[2px] shadow-[0_22px_55px_rgba(0,0,0,0.55)]">
+            <div className="relative rounded-3xl bg-linear-to-br from-white/40 to-white/10 p-0.5 shadow-[0_22px_55px_rgba(0,0,0,0.55)]">
               <div className="rounded-3xl bg-black/85 p-2 md:p-3">
-                <div className="w-full aspect-[16/9] md:aspect-[16/9]">
+                <div className="w-full aspect-video md:aspect-video">
                   <AvatarFrame label="Avatar explains how to choose industry + complexity" />
                 </div>
               </div>
