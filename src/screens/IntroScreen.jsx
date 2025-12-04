@@ -75,7 +75,7 @@ export default function IntroScreen({ onStart, onSkip }) {
               <div className="rounded-3xl bg-black/80 p-2 md:p-3">
                 {/* Make the avatar video taller / more dominant */}
                 <div className="w-full aspect-video md:aspect-video">
-                  <AvatarFrame label="Synthesia Avatar – Welcome Script" />
+                  <AvatarFrame label="Aptara-Welcome Script" />
                 </div>
               </div>
             </div>
