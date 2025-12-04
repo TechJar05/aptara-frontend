@@ -23,15 +23,12 @@ export default function IntroScreen({ onStart, onSkip }) {
             transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
           >
             <div className="space-y-4">
-              <h1 className="text-3xl md:text-4xl font-semibold leading-tight">
-                K-20 learning journeys, now powered by an interactive AI avatar.
-              </h1>
-              <p className="text-sm md:text-base text-white/80 max-w-xl">
+              <h1 className="text-xl md:text-xl text-white/80 max-w-xl">
                 Welcome to your Aptara demo microsite. See how an avatar can
                 greet prospects from your email campaigns, guide them through
                 tailored journeys, and hand them off to forms or meetings
                 seamlessly.
-              </p>
+              </h1>
             </div>
 
             {/* Quick value points */}
