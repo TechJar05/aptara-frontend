@@ -11,7 +11,10 @@
   },
   "dependencies": {
     "@anam-ai/js-sdk": "^4.6.0",
+    "@livekit/components-react": "^2.9.16",
+    "@livekit/components-styles": "^1.2.0",
     "@tailwindcss/vite": "^4.1.17",
+    "axios": "^1.13.2",
     "framer-motion": "^12.23.25",
     "lucide-react": "^0.555.0",
     "react": "^19.2.0",
