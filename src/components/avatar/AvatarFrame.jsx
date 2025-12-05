@@ -80,23 +80,24 @@ export default function AvatarFrame({ label }) {
   }, []);
 
   return (
-    <div className="relative w-full aspect-video rounded-2xl bg-[#1d4457]/10 border border-[#1d4457]/20 overflow-hidden shadow-xl">
-      {/* Important: give the video a matching id */}
-      <video
-        id={VIDEO_ELEMENT_ID}
-        autoPlay
-        playsInline
-        className="absolute inset-0 w-full h-full"
-      />
+  <div className="relative w-full aspect-video rounded-2xl bg-[#1d4457]/10 border border-[#1d4457]/20 overflow-hidden shadow-xl">
 
-      {/* Optional status pill */}
-      <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs bg-black/50 text-white backdrop-blur">
-        {status === "idle" && "Idle"}
-        {status === "requesting_token" && "Connecting..."}
-        {status === "connecting" && "Starting avatar..."}
-        {status === "connected" && (label || "Live")}
-        {status === "error" && `Error: ${error}`}
-      </div>
+    <video
+      id={VIDEO_ELEMENT_ID}
+      autoPlay
+      playsInline
+      className="absolute inset-0 w-full h-full object-cover"
+      style={{ objectFit: "cover" }}
+    />
+
+    <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs bg-black/50 text-white backdrop-blur">
+      {status === "idle" && "Idle"}
+      {status === "requesting_token" && "Connecting..."}
+      {status === "connecting" && "Starting avatar..."}
+      {status === "connected" && (label || "Live")}
+      {status === "error" && `Error: ${error}`}
     </div>
-  );
+  </div>
+);
+
 }
