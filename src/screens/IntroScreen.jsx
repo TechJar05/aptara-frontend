@@ -1,10 +1,17 @@
 // src/screens/IntroScreen.jsx
 import React from "react";
-// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import AvatarFrame from "../components/avatar/AvatarFrame";
 
 export default function IntroScreen({ onStart, onSkip }) {
+  const navigate = useNavigate();
+
+  // Called when AvatarFrame detects "show demo"
+  const handleShowDemo = () => {
+    navigate("/showreel");
+  };
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 24 }}
@@ -12,9 +19,8 @@ export default function IntroScreen({ onStart, onSkip }) {
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
       {/* Hero band under navbar – text left, avatar right */}
- <div className="max-w-[2900px] mx-auto  bg-[#073246] text-white  px-8 md:px-14 py-12 md:py-20 shadow-lg">
-<div className="grid gap-14 md:grid-cols-[1fr_1.5fr] items-center">
-
+      <div className="max-w-[2900px] mx-auto bg-[#073246] text-white px-8 md:px-14 py-12 md:py-20 shadow-lg">
+        <div className="grid gap-14 md:grid-cols-[1fr_1.5fr] items-center">
           {/* LEFT: Copy + actions */}
           <motion.div
             className="space-y-7"
@@ -75,18 +81,13 @@ export default function IntroScreen({ onStart, onSkip }) {
               <div className="rounded-3xl bg-black/80 p-2 md:p-3">
                 {/* Make the avatar video taller / more dominant */}
                 <div className="w-full aspect-video md:aspect-video">
-                  <AvatarFrame label="Aptara-Welcome Script" />
+                  <AvatarFrame
+                    label="Aptara-Welcome Script"
+                    onShowDemo={handleShowDemo}
+                  />
                 </div>
               </div>
             </div>
-
-            {/* Floating pill under avatar
-            <div className="hidden md:flex items-center gap-3 mt-4 text-xs text-white/80">
-              <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/25">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span>Interactive avatar intro powered by Synthesia</span>
-              </div>
-            </div> */}
           </motion.div>
         </div>
       </div>
