@@ -1,16 +1,36 @@
 // src/components/avatar/AvatarFrame.jsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { createClient, AnamEvent } from "@anam-ai/js-sdk";
 
-const BACKEND_URL = "http://localhost:4000"; // or from env
+const BACKEND_URL = "http://localhost:4000"; // keep as-is or use env
 
-export default function AvatarFrame({ label, onShowDemo }) {
+const AvatarFrame = forwardRef(function AvatarFrame({ label, onShowDemo, initialBotMessage, idleFollowUpMessage, idleSeconds, onGoToProductDemo, onBotConfirmedGoToDemo }, ref) {
   const clientRef = useRef(null);
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
   const [hasTriggeredDemo, setHasTriggeredDemo] = useState(false);
 
   const VIDEO_ELEMENT_ID = "anam-avatar-video";
+
+  // Expose stopStreaming to parent via ref
+  useImperativeHandle(ref, () => ({
+    async stopStreaming() {
+      if (clientRef.current?.stopStreaming) {
+        try {
+          // await stop to ensure backend session closes
+          await clientRef.current.stopStreaming();
+          clientRef.current = null;
+          setStatus("idle");
+        } catch (err) {
+          console.warn("Error in exposed stopStreaming():", err);
+        }
+      }
+    },
+    // optional: expose raw client if parent wants it
+    getClient() {
+      return clientRef.current;
+    }
+  }), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -36,12 +56,10 @@ export default function AvatarFrame({ label, onShowDemo }) {
         const client = createClient(sessionToken);
         clientRef.current = client;
 
-        // Session ready → mark as connected
         client.addListener(AnamEvent.SESSION_READY, () => {
           if (!cancelled) setStatus("connected");
         });
 
-        // 👇 Listen for user saying "show demo"
         client.addListener(
           AnamEvent.MESSAGE_HISTORY_UPDATED,
           async (messages = []) => {
@@ -53,25 +71,16 @@ export default function AvatarFrame({ label, onShowDemo }) {
               last?.role === "user" &&
               /show\s+(me\s+)?(the\s+)?demo/i.test(last.content || "")
             ) {
-              console.log("🟢 Detected 'show demo' from user");
               setHasTriggeredDemo(true);
 
               try {
-                // Use talk() to make avatar speak the response
                 await client.talk("OK sure, let's see our demo!");
-                
-                // Wait a moment for the speech to complete, then navigate
                 setTimeout(() => {
-                  if (typeof onShowDemo === "function") {
-                    onShowDemo();
-                  }
-                }, 3500); // Adjust timing as needed
+                  if (typeof onShowDemo === "function") onShowDemo();
+                }, 3500);
               } catch (err) {
                 console.error("Error using talk():", err);
-                // Navigate anyway if talk fails
-                if (typeof onShowDemo === "function") {
-                  onShowDemo();
-                }
+                if (typeof onShowDemo === "function") onShowDemo();
               }
             }
           }
@@ -79,8 +88,8 @@ export default function AvatarFrame({ label, onShowDemo }) {
 
         await client.streamToVideoElement(VIDEO_ELEMENT_ID);
 
-        if (cancelled) {
-          await client.stopStreaming();
+        if (cancelled && clientRef.current) {
+          await clientRef.current.stopStreaming();
         }
       } catch (err) {
         console.error("Error initializing Anam avatar:", err);
@@ -97,7 +106,7 @@ export default function AvatarFrame({ label, onShowDemo }) {
       cancelled = true;
       if (clientRef.current) {
         clientRef.current.stopStreaming?.().catch((err) =>
-          console.error("Error stopping Anam stream:", err)
+          console.error("Error stopping Anam stream (cleanup):", err)
         );
         clientRef.current = null;
       }
@@ -121,4 +130,6 @@ export default function AvatarFrame({ label, onShowDemo }) {
       </div>
     </div>
   );
-}
+});
+
+export default AvatarFrame;

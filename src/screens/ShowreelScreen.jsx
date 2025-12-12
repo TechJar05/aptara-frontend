@@ -1,5 +1,5 @@
 // src/screens/ShowreelScreen.jsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import AvatarFrame from "../components/avatar/AvatarFrame";
@@ -7,9 +7,13 @@ import AvatarFrame from "../components/avatar/AvatarFrame";
 export default function ShowreelScreen({ onBack, onGoToDemo }) {
   const navigate = useNavigate();
   const [videoEnded, setVideoEnded] = useState(false);
+  const avatarRef = useRef(null);
 
   // Used to force AvatarFrame to re-run its "initial talk" when video ends
-  const avatarSessionKey = useMemo(() => (videoEnded ? "after-video" : "before-video"), [videoEnded]);
+  const avatarSessionKey = useMemo(
+    () => (videoEnded ? "after-video" : "before-video"),
+    [videoEnded]
+  );
 
   useEffect(() => {
     const video = document.getElementById("showreelVideo");
@@ -21,13 +25,17 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
     return () => video.removeEventListener("ended", handleEnded);
   }, []);
 
-  // Optional: unmute on click (your existing logic)
+  // Optional: unmute on first user click (your existing logic)
   useEffect(() => {
     const video = document.getElementById("showreelVideo");
     if (!video) return;
 
     const unmute = () => {
-      video.muted = false;
+      try {
+        video.muted = false;
+      } catch (e) {
+        /* ignore */
+      }
       window.removeEventListener("click", unmute);
     };
     window.addEventListener("click", unmute);
@@ -35,9 +43,54 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
     return () => window.removeEventListener("click", unmute);
   }, []);
 
-  const handleGoToProductDemo = () => {
+  // Ensure we stop avatar streaming before navigating.
+  // Uses a short timeout so UI doesn't hang if stopStreaming takes long.
+  const stopAvatarWithTimeout = async (timeoutMs = 1500) => {
+    if (!avatarRef.current?.stopStreaming) return;
+    try {
+      const stopPromise = avatarRef.current.stopStreaming();
+      const timeout = new Promise((res) => setTimeout(res, timeoutMs));
+      await Promise.race([stopPromise, timeout]);
+    } catch (err) {
+      // swallow errors but log for debugging
+      // eslint-disable-next-line no-console
+      console.warn("Error stopping avatar stream:", err);
+    }
+  };
+
+  // Internal handler used by AvatarFrame when bot requests product demo
+  const handleGoToProductDemo = async () => {
+    await stopAvatarWithTimeout(2000);
     navigate("/demo");
   };
+
+  // When user clicks the parent Back button
+  const handleBack = async () => {
+    await stopAvatarWithTimeout();
+    if (typeof onBack === "function") onBack();
+  };
+
+  // When user clicks the right-side "See Finance / Healthcare demo" button
+  const handleSeeDemo = async () => {
+    await stopAvatarWithTimeout();
+    if (typeof onGoToDemo === "function") {
+      onGoToDemo();
+    } else {
+      // fallback navigate if parent didn't provide callback
+      navigate("/demo");
+    }
+  };
+
+  // Stop avatar if this screen unmounts
+  useEffect(() => {
+    return () => {
+      if (avatarRef.current?.stopStreaming) {
+        avatarRef.current
+          .stopStreaming()
+          .catch((err) => console.warn("Error stopping avatar on unmount:", err));
+      }
+    };
+  }, []);
 
   return (
     <motion.section
@@ -57,7 +110,6 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
             <div className="relative rounded-3xl bg-linear-to-br from-white/30 to-white/5 p-0.5 shadow-[0_22px_55px_rgba(0,0,0,0.55)]">
               <div className="rounded-3xl bg-black/80 p-2 md:p-3">
                 <div className="w-full aspect-video md:aspect-video relative overflow-hidden rounded-2xl">
-
                   {/* ✅ Show VIDEO until it ends */}
                   {!videoEnded && (
                     <video
@@ -74,6 +126,7 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
                   {/* ✅ After video ends, show AVATAR */}
                   {videoEnded && (
                     <AvatarFrame
+                      ref={avatarRef}
                       key={avatarSessionKey}
                       label="Ava — Q&A"
                       // Ava should say this immediately when the avatar appears
@@ -87,7 +140,6 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
                       onBotConfirmedGoToDemo={handleGoToProductDemo}
                     />
                   )}
-
                 </div>
               </div>
             </div>
@@ -155,13 +207,13 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
 
             <div className="flex flex-wrap gap-3 pt-2">
               <button
-                onClick={onBack}
+                onClick={handleBack}
                 className="px-4 py-2.5 rounded-full border border-white/40 text-xs md:text-sm text-white hover:bg-white/10 transition"
               >
                 Back to options
               </button>
               <button
-                onClick={onGoToDemo}
+                onClick={handleSeeDemo}
                 className="px-4 py-2.5 rounded-full bg-white text-[#073246] text-xs md:text-sm font-semibold hover:bg-[#f5f5f5] transition"
               >
                 See Finance / Healthcare demo
