@@ -1,19 +1,43 @@
 // src/screens/ShowreelScreen.jsx
-import React, {useEffect} from "react";
-// eslint-disable-next-line no-unused-vars
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import AvatarFrame from "../components/avatar/AvatarFrame";
 
 export default function ShowreelScreen({ onBack, onGoToDemo }) {
+  const navigate = useNavigate();
+  const [videoEnded, setVideoEnded] = useState(false);
+
+  // Used to force AvatarFrame to re-run its "initial talk" when video ends
+  const avatarSessionKey = useMemo(() => (videoEnded ? "after-video" : "before-video"), [videoEnded]);
 
   useEffect(() => {
-  const video = document.getElementById("showreelVideo");
-  const unmute = () => {
-    video.muted = false;
-    window.removeEventListener("click", unmute);
+    const video = document.getElementById("showreelVideo");
+    if (!video) return;
+
+    const handleEnded = () => setVideoEnded(true);
+    video.addEventListener("ended", handleEnded);
+
+    return () => video.removeEventListener("ended", handleEnded);
+  }, []);
+
+  // Optional: unmute on click (your existing logic)
+  useEffect(() => {
+    const video = document.getElementById("showreelVideo");
+    if (!video) return;
+
+    const unmute = () => {
+      video.muted = false;
+      window.removeEventListener("click", unmute);
+    };
+    window.addEventListener("click", unmute);
+
+    return () => window.removeEventListener("click", unmute);
+  }, []);
+
+  const handleGoToProductDemo = () => {
+    navigate("/demo");
   };
-  window.addEventListener("click", unmute);
-}, []);
 
   return (
     <motion.section
@@ -21,10 +45,9 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeIn" }}
     >
-      {/* Full-width hero band – avatar + copy */}
       <div className="max-w-[2900px] mx-auto bg-[#073246] text-white px-8 md:px-14 py-12 md:py-20 shadow-lg">
         <div className="grid gap-14 md:grid-cols-[1.5fr_1fr] items-start">
-          {/* LEFT: Showreel video container (bigger, hero style) */}
+          {/* LEFT */}
           <motion.div
             className="relative"
             initial={{ opacity: 0, x: -32 }}
@@ -32,9 +55,11 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
             transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
           >
             <div className="relative rounded-3xl bg-linear-to-br from-white/30 to-white/5 p-0.5 shadow-[0_22px_55px_rgba(0,0,0,0.55)]">
-              <div className="relative rounded-3xl bg-linear-to-br from-white/30 to-white/5 p-0.5 shadow-[0_22px_55px_rgba(0,0,0,0.55)]">
-                <div className="rounded-3xl bg-black/80 p-2 md:p-3">
-                  <div className="w-full aspect-video md:aspect-video relative overflow-hidden rounded-2xl">
+              <div className="rounded-3xl bg-black/80 p-2 md:p-3">
+                <div className="w-full aspect-video md:aspect-video relative overflow-hidden rounded-2xl">
+
+                  {/* ✅ Show VIDEO until it ends */}
+                  {!videoEnded && (
                     <video
                       src="https://myai-aws-bucket.s3.ap-south-1.amazonaws.com/Nex+AI+Product+Pitch.mp4"
                       autoPlay
@@ -43,14 +68,32 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
                       muted
                       id="showreelVideo"
                       className="absolute inset-0 w-full h-full object-cover rounded-2xl"
-                    ></video>
-                  </div>
+                    />
+                  )}
+
+                  {/* ✅ After video ends, show AVATAR */}
+                  {videoEnded && (
+                    <AvatarFrame
+                      key={avatarSessionKey}
+                      label="Ava — Q&A"
+                      // Ava should say this immediately when the avatar appears
+                      initialBotMessage="Thanks for watching. Do you have any questions about the demo?"
+                      // If user is silent, after some seconds Ava should ask this
+                      idleFollowUpMessage="Would you like to see our product-specific demo?"
+                      idleSeconds={10}
+                      // When user says yes to product demo
+                      onGoToProductDemo={handleGoToProductDemo}
+                      // Optional: if you want to navigate based on bot confirmation line instead
+                      onBotConfirmedGoToDemo={handleGoToProductDemo}
+                    />
+                  )}
+
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* RIGHT: Copy + actions */}
+          {/* RIGHT */}
           <motion.div
             className="space-y-6"
             initial={{ opacity: 0, x: 32 }}
@@ -110,7 +153,6 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
               </span>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-wrap gap-3 pt-2">
               <button
                 onClick={onBack}
