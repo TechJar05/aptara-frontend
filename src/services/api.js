@@ -9,7 +9,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
+``
 export const avatarAPI = {
   // ▶ Start session
   startSession: async (avatarId, avatarPersona) => {

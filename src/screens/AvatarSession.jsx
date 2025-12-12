@@ -66,7 +66,7 @@ const AvatarSession = () => {
 
       const response = await avatarAPI.startSession(
         avatarId,
-        'd14c6c9f-e817-43eb-b3f8-c407390933db' // context id
+        'ac4d73ed-ed39-44a5-a27f-c89f6cce01ad' // context id
       );
 
       if (response.code === 1000) {
