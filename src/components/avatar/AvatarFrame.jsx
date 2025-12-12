@@ -106,29 +106,55 @@ const AvatarFrame = forwardRef(function AvatarFrame({
         });
 
         client.addListener(
-          AnamEvent.MESSAGE_HISTORY_UPDATED,
-          async (messages = []) => {
-            if (!messages.length || hasTriggeredDemo) return;
+  AnamEvent.MESSAGE_HISTORY_UPDATED,
+  async (messages = []) => {
+    if (!messages.length || hasTriggeredDemo) return;
 
-            const last = messages[messages.length - 1];
-            if (
-              last?.role === "user" &&
-              /show\s+(me\s+)?(the\s+)?demo/i.test(last.content || "")
-            ) {
-              setHasTriggeredDemo(true);
+    const last = messages[messages.length - 1];
+    if (last?.role !== "user") return;
 
-              try {
-                await client.talk("OK sure, let's see our demo!");
-                setTimeout(() => {
-                  if (typeof onShowDemo === "function") onShowDemo();
-                }, 3500);
-              } catch (err) {
-                console.error("Error using talk():", err);
-                if (typeof onShowDemo === "function") onShowDemo();
-              }
-            }
-          }
-        );
+    // Normalize user input
+    const userText = (last.content || "").trim().toLowerCase();
+
+    /**
+     * Matches phrases like:
+     * - show demo / show the demo / show me a demo
+     * - display demo
+     * - view demo
+     * - open demo
+     * - play demo
+     * - watch demo
+     * - start demo
+     * - can you show the demo
+     * - demo please (with verb implied)
+     */
+    const demoVerbRegex =
+      /\b(show|display|view|open|play|watch|see|start|launch)\b/;
+    const demoNounRegex = /\bdemo\b/;
+
+    const wantsDemo =
+      demoNounRegex.test(userText) &&
+      (demoVerbRegex.test(userText) || userText.endsWith("demo"));
+
+    if (wantsDemo) {
+      setHasTriggeredDemo(true);
+
+      try {
+        // Let the avatar speak first
+        await client.talk("OK sure, let's see our demo!");
+
+        // Give time for speech to finish, then navigate
+        setTimeout(() => {
+          if (typeof onShowDemo === "function") onShowDemo();
+        }, 3500);
+      } catch (err) {
+        console.error("Error using talk():", err);
+        if (typeof onShowDemo === "function") onShowDemo();
+      }
+    }
+  }
+);
+
 
         // Start streaming into the video element
         await client.streamToVideoElement(VIDEO_ELEMENT_ID);
@@ -172,7 +198,7 @@ const AvatarFrame = forwardRef(function AvatarFrame({
         {status === "requesting_token" && "Connecting..."}
         {status === "connecting" && "Starting avatar..."}
         {status === "connected" && (label || "Live")}
-        {status === "error" && `Error: ${error}`}
+        {status === "error" && "In Progress"}
       </div>
     </div>
   );
