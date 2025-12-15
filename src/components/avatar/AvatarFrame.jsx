@@ -195,10 +195,10 @@ const AvatarFrame = forwardRef(function AvatarFrame({
       />
       <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs bg-black/50 text-white backdrop-blur">
         {status === "idle" && "Idle"}
-        {status === "requesting_token" && "Connecting..."}
-        {status === "connecting" && "Starting avatar..."}
+        {status === "requesting_token" && "Getting Things Ready..."}
+        {status === "connecting" && "Loading Your AI Assistant..."}
         {status === "connected" && (label || "Live")}
-        {status === "error" && "In Progress"}
+        {status === "error" && "Development In Progress,Coming Soon!"}
       </div>
     </div>
   );
