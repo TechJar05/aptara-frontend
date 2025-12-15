@@ -1,5 +1,5 @@
 // src/screens/ShowreelScreen.jsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import AvatarFrame from "../components/avatar/AvatarFrame";
@@ -7,25 +7,27 @@ import AvatarFrame from "../components/avatar/AvatarFrame";
 export default function ShowreelScreen({ onBack, onGoToDemo }) {
   const navigate = useNavigate();
   const [videoEnded, setVideoEnded] = useState(false);
+  const [showAvatar, setShowAvatar] = useState(false);
   const avatarRef = useRef(null);
-
-  // Used to force AvatarFrame to re-run its "initial talk" when video ends
-  const avatarSessionKey = useMemo(
-    () => (videoEnded ? "after-video" : "before-video"),
-    [videoEnded]
-  );
 
   useEffect(() => {
     const video = document.getElementById("showreelVideo");
     if (!video) return;
 
-    const handleEnded = () => setVideoEnded(true);
+    const handleEnded = async () => {
+      setVideoEnded(true);
+      
+      // Wait a moment before showing the avatar
+      // This gives time for any cleanup
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setShowAvatar(true);
+    };
+    
     video.addEventListener("ended", handleEnded);
-
     return () => video.removeEventListener("ended", handleEnded);
   }, []);
 
-  // Optional: unmute on first user click (your existing logic)
+  // Optional: unmute on first user click
   useEffect(() => {
     const video = document.getElementById("showreelVideo");
     if (!video) return;
@@ -43,8 +45,6 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
     return () => window.removeEventListener("click", unmute);
   }, []);
 
-  // Ensure we stop avatar streaming before navigating.
-  // Uses a short timeout so UI doesn't hang if stopStreaming takes long.
   const stopAvatarWithTimeout = async (timeoutMs = 1500) => {
     if (!avatarRef.current?.stopStreaming) return;
     try {
@@ -52,36 +52,30 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
       const timeout = new Promise((res) => setTimeout(res, timeoutMs));
       await Promise.race([stopPromise, timeout]);
     } catch (err) {
-      // swallow errors but log for debugging
-      // eslint-disable-next-line no-console
       console.warn("Error stopping avatar stream:", err);
     }
   };
 
-  // Internal handler used by AvatarFrame when bot requests product demo
   const handleGoToProductDemo = async () => {
     await stopAvatarWithTimeout(2000);
     navigate("/demo");
   };
 
-  // When user clicks the parent Back button
   const handleBack = async () => {
     await stopAvatarWithTimeout();
     if (typeof onBack === "function") onBack();
   };
 
-  // When user clicks the right-side "See Finance / Healthcare demo" button
   const handleSeeDemo = async () => {
     await stopAvatarWithTimeout();
     if (typeof onGoToDemo === "function") {
       onGoToDemo();
     } else {
-      // fallback navigate if parent didn't provide callback
       navigate("/demo");
     }
   };
 
-  // Stop avatar if this screen unmounts
+  // Stop avatar on unmount
   useEffect(() => {
     return () => {
       if (avatarRef.current?.stopStreaming) {
@@ -110,7 +104,7 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
             <div className="relative rounded-3xl bg-linear-to-br from-white/30 to-white/5 p-0.5 shadow-[0_22px_55px_rgba(0,0,0,0.55)]">
               <div className="rounded-3xl bg-black/80 p-2 md:p-3">
                 <div className="w-full aspect-video md:aspect-video relative overflow-hidden rounded-2xl">
-                  {/* ✅ Show VIDEO until it ends */}
+                  {/* Show VIDEO until it ends */}
                   {!videoEnded && (
                     <video
                       src="https://myai-aws-bucket.s3.ap-south-1.amazonaws.com/Nex+AI+Product+Pitch.mp4"
@@ -123,36 +117,38 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
                     />
                   )}
 
-                  {/* ✅ After video ends, show AVATAR */}
-                  {videoEnded && (
+                  {/* Show AVATAR only after video ends and delay completes */}
+                  {videoEnded && showAvatar && (
                     <AvatarFrame
                       ref={avatarRef}
-                      key={avatarSessionKey}
                       label="Ava — Q&A"
-                      // Ava should say this immediately when the avatar appears
-                      initialBotMessage="Thanks for watching. Do you have any questions about the demo?"
-                      // If user is silent, after some seconds Ava should ask this
+                      initialBotMessage="Thanks for watching! Do you have any questions about the demo?"
                       idleFollowUpMessage="Would you like to see our product-specific demo?"
                       idleSeconds={10}
-                      // When user says yes to product demo
                       onGoToProductDemo={handleGoToProductDemo}
-                      // Optional: if you want to navigate based on bot confirmation line instead
                       onBotConfirmedGoToDemo={handleGoToProductDemo}
                     />
+                  )}
+
+                  {/* Loading state between video end and avatar start */}
+                  {videoEnded && !showAvatar && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/90">
+                      <div className="text-white text-sm">Loading avatar...</div>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* RIGHT */}
+          {/* RIGHT - Keep your existing right panel code */}
           <motion.div
             className="space-y-6"
             initial={{ opacity: 0, x: 32 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
           >
-            {/* Eyebrow tag */}
+            {/* ... rest of your right panel code ... */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/25">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               <span className="text-[11px] font-medium tracking-[0.18em] uppercase text-white/80">
@@ -171,7 +167,6 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
               </p>
             </div>
 
-            {/* Bullets */}
             <ul className="mt-2 space-y-2 text-xs md:text-sm text-white/85">
               <li className="flex gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-white" />
@@ -195,7 +190,6 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
               </li>
             </ul>
 
-            {/* Tiny meta row */}
             <div className="flex flex-wrap gap-3 text-[11px] text-white/80 pt-1">
               <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
                 ~2–3 min overview
