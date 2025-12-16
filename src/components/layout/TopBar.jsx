@@ -28,7 +28,7 @@ export default function TopBar() {
               text-white/80
             "
           >
-            Powered by AI Avatar
+            Powered by Aptara
           </span>
         </div>
       </div>
