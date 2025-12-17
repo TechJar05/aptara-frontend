@@ -48,13 +48,12 @@ const AvatarFrame = forwardRef(function AvatarFrame({
         setError("");
 
         // Read API key from Vite env
-        const ANAM_API_KEY = import.meta.env.VITE_ANAM_API_KEY;
+        const ANAM_API_KEY = "MTIxNWE2ZmMtMDkwZC00OGU3LTk3ODUtZGQ0ZTY0MDc5NzYwOndMVDF3clNIa2NYaUxFajB6TUVLWWdYRzhiR2ljck9iOWlHQUZLNFVZTmc9";
         if (!ANAM_API_KEY) {
           throw new Error(
-            "Missing VITE_ANAM_API_KEY in environment. Add VITE_ANAM_API_KEY to .env.local (dev only)."
+            "Key missing"
           );
         }
-
         const personaConfig = {
           name: 'Cara',
           avatarId: '6dbc1e47-7768-403e-878a-94d7fcc3677b',
