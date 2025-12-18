@@ -113,7 +113,7 @@ export default function ShowreelScreen({ onBack, onGoToDemo }) {
                   {/* ✅ Show VIDEO until it ends */}
                   {!videoEnded && (
                     <video
-                      src="https://myai-aws-bucket.s3.ap-south-1.amazonaws.com/Nex+AI+Product+Pitch.mp4"
+                      src="https://myai-aws-bucket.s3.ap-south-1.amazonaws.com/aptara%2Bvid.mp4"
                       autoPlay
                       playsInline
                       controls
